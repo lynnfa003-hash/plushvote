@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-cream text-slate-800;
+  min-height: 100vh;
+  background-image: radial-gradient(circle at top, rgba(200, 181, 232, 0.45), transparent 42%);
+}

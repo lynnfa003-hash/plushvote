@@ -84,7 +84,7 @@ export async function POST(request: Request) {
     const { error } = await supabase.from("votes").insert({
       toy_id: toyId,
       voter_id: voterId
-    });
+    } as any);
 
     if (error) {
       if (error.code === "23505") {
@@ -121,7 +121,7 @@ export async function POST(request: Request) {
         endpoint: "/api/vote",
         clientIp,
         toyId
-      });
+      } as any);
 
       return NextResponse.json(
         { error: "投票失败，请稍后再试。" },
@@ -144,7 +144,7 @@ export async function POST(request: Request) {
       endpoint: "/api/vote",
       clientIp,
       toyId
-    });
+    } as any);
 
     return NextResponse.json(
       { error: "服务暂时不可用，请稍后重试。" },

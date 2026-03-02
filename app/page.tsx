@@ -48,7 +48,7 @@ export default async function HomePage() {
         <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">PlushVote</p>
         <h1 className="mt-3 text-3xl font-extrabold text-slate-900 sm:text-4xl">毛绒玩具创意投票平台</h1>
         <p className="mt-3 max-w-2xl text-slate-600">
-          晒出你最心动的玩具创意，给它点一颗 "想养它" ❤️。按投票数实时排序，让更多人看见好设计。
+          晒出你最心动的玩具创意，给它点一颗 &quot;想养它&quot; ❤️。按投票数实时排序，让更多人看见好设计。
         </p>
         <div className="mt-6">
           <Link

@@ -68,7 +68,7 @@ export default function SubmitPage() {
         image_url: form.imageUrl.trim(),
         category: form.category,
         is_approved: false
-      });
+      } as any);
 
       if (insertError) {
         if (insertError.code === "42501") {
@@ -78,7 +78,7 @@ export default function SubmitPage() {
           await reportError(insertError, {
             where: "app/submit/page.tsx",
             action: "submitToy"
-          });
+          } as any);
         }
         return;
       }
@@ -90,7 +90,7 @@ export default function SubmitPage() {
       await reportError(submitError, {
         where: "app/submit/page.tsx",
         action: "submitToy"
-      });
+      } as any);
     } finally {
       setIsSubmitting(false);
     }

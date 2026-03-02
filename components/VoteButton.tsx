@@ -35,6 +35,17 @@ function saveVotedToyId(toyId: string) {
   localStorage.setItem(VOTED_TOYS_KEY, JSON.stringify(Array.from(voted)));
 }
 
+function generateVoterId(): string {
+  try {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+  } catch (e) {
+    // Fallback
+  }
+  return "voter_" + Date.now() + "_" + Math.random().toString(36).substring(2, 15);
+}
+
 export default function VoteButton({ toyId, onVoteResult }: VoteButtonProps) {
   const [voterId, setVoterId] = useState<string>("");
   const [voted, setVoted] = useState(false);
@@ -45,7 +56,7 @@ export default function VoteButton({ toyId, onVoteResult }: VoteButtonProps) {
   useEffect(() => {
     let localVoterId = localStorage.getItem(VOTER_ID_KEY);
     if (!localVoterId) {
-      localVoterId = crypto.randomUUID();
+      localVoterId = generateVoterId();
       localStorage.setItem(VOTER_ID_KEY, localVoterId);
     }
 

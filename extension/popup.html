@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PlushVote 采集助手</title>
+    <link rel="stylesheet" href="./common.css" />
+  </head>
+  <body>
+    <div class="stack">
+      <div class="card stack">
+        <h1>PlushVote 采集助手</h1>
+        <p class="small">先支持小红书帖子，后续可扩展更多平台。</p>
+
+        <div id="pageInfo" class="status">正在识别当前页面...</div>
+        <div class="small" id="platformInfo"></div>
+
+        <div class="row">
+          <button id="collectBtn" class="primary" type="button">一键采集当前页面</button>
+          <button id="openOptionsBtn" class="secondary" type="button">设置</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./popup.mjs"></script>
+  </body>
+</html>

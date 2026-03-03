@@ -31,6 +31,9 @@ cp .env.local.example .env.local
 
 1. `supabase/migrations/001_init.sql`
 2. `supabase/migrations/002_rls_policies.sql`
+3. `supabase/migrations/003_email_subscriptions.sql`
+4. `supabase/migrations/004_storage_uploads.sql`
+5. `supabase/migrations/005_add_email_subscriptions.sql`
 
 这会创建表、投票计数触发器、并开启 RLS：
 
@@ -40,6 +43,8 @@ cp .env.local.example .env.local
 - `votes`
   - 公开可读
   - 公开可写（仅允许对已审核作品投票）
+- `email_subscriptions`
+  - 仅管理员可管理（前端通过服务端 API 写入）
 
 ### 4) 启动开发环境
 
@@ -60,3 +65,13 @@ npm run dev
 - 首页提示 Supabase 未配置：检查 `.env.local` 是否存在、URL 是否为完整 `http(s)` 地址。
 - 投票返回 403：目标作品可能未审核通过（RLS 拒绝未审核作品投票）。
 - 投票返回 409：同一 `toy_id + voter_id` 已投过票。
+
+## Chrome 采集插件（小红书）
+
+项目内置了一个可独立加载的 Chrome 插件：`extension/`。
+
+- 功能：一键采集小红书帖子（标题/正文/多图）并预览后提交到本平台 `/api/submissions`
+- 登录：自动读取平台浏览器登录态；未登录时可一键跳转平台登录页
+- 配置：支持在插件设置中配置平台地址（默认 `http://localhost:3000`）
+
+安装和使用说明见：`extension/README.md`

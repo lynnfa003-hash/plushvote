@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "PlushVote 采集助手",
+  "version": "0.1.0",
+  "description": "一键采集小红书帖子并提交到 PlushVote 平台",
+  "permissions": ["activeTab", "scripting", "storage", "tabs"],
+  "host_permissions": ["*://*.xiaohongshu.com/*"],
+  "optional_host_permissions": ["http://*/*", "https://*/*"],
+  "background": {
+    "service_worker": "background.mjs",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "PlushVote 采集助手",
+    "default_popup": "popup.html"
+  },
+  "options_page": "options.html"
+}

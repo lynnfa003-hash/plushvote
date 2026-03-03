@@ -1,14 +1,23 @@
 import { NextResponse } from "next/server";
 import { reportError } from "@/lib/monitoring";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
-import { createServerSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
+import {
+  createServiceRoleSupabaseClient,
+  getSupabaseAdminConfigError,
+  isSupabaseAdminConfigured
+} from "@/lib/supabase";
 
-type VoteBody = {
-  toyId?: unknown;
-  voterId?: unknown;
+type SubscribeBody = {
+  email?: unknown;
+  locale?: unknown;
 };
 
-const VOTER_ID_MAX_LENGTH = 128;
+type PostgrestLikeError = {
+  code?: string;
+  message?: string;
+};
+
+const EMAIL_MAX_LENGTH = 320;
 
 function createRateLimitHeaders(remaining: number, retryAfterSeconds: number) {
   return {
@@ -16,6 +25,23 @@ function createRateLimitHeaders(remaining: number, retryAfterSeconds: number) {
     "X-RateLimit-Remaining": String(remaining),
     "Retry-After": String(retryAfterSeconds)
   };
+}
+
+function isValidEmail(email: string) {
+  if (email.length > EMAIL_MAX_LENGTH) {
+    return false;
+  }
+
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isMissingSubscriptionTableError(error: PostgrestLikeError | null) {
+  return Boolean(
+    error &&
+      error.code === "PGRST205" &&
+      typeof error.message === "string" &&
+      error.message.includes("email_subscriptions")
+  );
 }
 
 export async function POST(request: Request) {
@@ -32,9 +58,9 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!isSupabaseConfigured) {
+  if (!isSupabaseAdminConfigured) {
     return NextResponse.json(
-      { error: "服务器未配置 Supabase。" },
+      { error: getSupabaseAdminConfigError() ?? "服务器缺少订阅配置。" },
       {
         status: 500,
         headers: createRateLimitHeaders(rateLimit.remaining, rateLimit.retryAfterSeconds)
@@ -42,12 +68,11 @@ export async function POST(request: Request) {
     );
   }
 
-  let payload: VoteBody;
+  let payload: SubscribeBody;
 
   try {
-    payload = (await request.json()) as VoteBody;
+    payload = (await request.json()) as SubscribeBody;
   } catch {
-    console.log("[API/Vote] Invalid JSON body");
     return NextResponse.json(
       { error: "请求体格式不正确。" },
       {
@@ -57,21 +82,12 @@ export async function POST(request: Request) {
     );
   }
 
-  console.log("[API/Vote] Received payload:", JSON.stringify(payload));
+  const normalizedEmail = typeof payload.email === "string" ? payload.email.trim().toLowerCase() : "";
+  const locale = payload.locale === "zh" ? "zh" : "en";
 
-  const toyId = typeof payload.toyId === "string"
-    ? payload.toyId.trim()
-    : typeof payload.toyId === "number"
-      ? String(payload.toyId)
-      : "";
-  const voterId = typeof payload.voterId === "string" ? payload.voterId.trim() : "";
-
-  console.log("[API/Vote] Parsed - toyId:", toyId, "voterId:", voterId);
-
-  if (!toyId || !voterId) {
-    console.log("[API/Vote] Missing required fields - toyId:", toyId, "voterId:", voterId);
+  if (!isValidEmail(normalizedEmail)) {
     return NextResponse.json(
-      { error: "toyId 和 voterId 为必填项。" },
+      { error: "邮箱格式不正确。" },
       {
         status: 400,
         headers: createRateLimitHeaders(rateLimit.remaining, rateLimit.retryAfterSeconds)
@@ -79,28 +95,22 @@ export async function POST(request: Request) {
     );
   }
 
-  if (voterId.length > VOTER_ID_MAX_LENGTH) {
-    console.log("[API/Vote] voterId too long:", voterId.length);
-    return NextResponse.json(
-      { error: "voterId 长度超出限制。" },
-      {
-        status: 400,
-        headers: createRateLimitHeaders(rateLimit.remaining, rateLimit.retryAfterSeconds)
-      }
-    );
-  }
+  console.log("[API/Subscribe] Attempting to insert email:", normalizedEmail, "locale:", locale);
 
   try {
-    const supabase = createServerSupabaseClient();
-    const { error } = await supabase.from("votes").insert({
-      toy_id: toyId,
-      voter_id: voterId
+    const supabase = createServiceRoleSupabaseClient();
+    const { error } = await supabase.from("email_subscriptions").insert({
+      email: normalizedEmail,
+      locale
     } as any);
+
+    console.log("[API/Subscribe] Insert result - error:", error);
 
     if (error) {
       if (error.code === "23505") {
+        console.log("[API/Subscribe] Email already exists");
         return NextResponse.json(
-          { error: "你已经投过票了。" },
+          { error: "该邮箱已经订阅。" },
           {
             status: 409,
             headers: createRateLimitHeaders(rateLimit.remaining, rateLimit.retryAfterSeconds)
@@ -108,34 +118,32 @@ export async function POST(request: Request) {
         );
       }
 
-      if (error.code === "23503") {
+      if (isMissingSubscriptionTableError(error)) {
+        console.log("[API/Subscribe] email_subscriptions table is missing");
+        await reportError(error, {
+          endpoint: "/api/subscribe",
+          clientIp,
+          locale
+        });
+
         return NextResponse.json(
-          { error: "该作品不存在或暂不可投票。" },
+          { error: "订阅服务尚未初始化，请联系管理员执行最新数据库迁移。" },
           {
-            status: 404,
+            status: 503,
             headers: createRateLimitHeaders(rateLimit.remaining, rateLimit.retryAfterSeconds)
           }
         );
       }
 
-      if (error.code === "42501") {
-        return NextResponse.json(
-          { error: "该作品尚未开放投票。" },
-          {
-            status: 403,
-            headers: createRateLimitHeaders(rateLimit.remaining, rateLimit.retryAfterSeconds)
-          }
-        );
-      }
-
+      console.log("[API/Subscribe] Unknown error:", error);
       await reportError(error, {
-        endpoint: "/api/vote",
+        endpoint: "/api/subscribe",
         clientIp,
-        toyId
-      } as any);
+        locale
+      });
 
       return NextResponse.json(
-        { error: "投票失败，请稍后再试。" },
+        { error: "订阅失败，请稍后再试。" },
         {
           status: 500,
           headers: createRateLimitHeaders(rateLimit.remaining, rateLimit.retryAfterSeconds)
@@ -152,13 +160,12 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     await reportError(error, {
-      endpoint: "/api/vote",
-      clientIp,
-      toyId
-    } as any);
+      endpoint: "/api/subscribe",
+      clientIp
+    });
 
     return NextResponse.json(
-      { error: "服务暂时不可用，请稍后重试。" },
+      { error: "服务暂时不可用，请稍后再试。" },
       {
         status: 500,
         headers: createRateLimitHeaders(rateLimit.remaining, rateLimit.retryAfterSeconds)

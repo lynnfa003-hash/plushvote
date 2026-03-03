@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>采集预览 - PlushVote</title>
+    <link rel="stylesheet" href="./common.css" />
+  </head>
+  <body>
+    <div class="stack">
+      <div class="row-between">
+        <h1>采集预览</h1>
+        <a class="link" href="#" id="openOptionsLink">平台设置</a>
+      </div>
+
+      <div id="status" class="status">正在加载草稿...</div>
+
+      <section class="card stack" id="formCard" hidden>
+        <div class="field">
+          <label for="title">标题</label>
+          <input id="title" maxlength="80" />
+        </div>
+
+        <div class="field">
+          <label for="content">正文</label>
+          <textarea id="content" maxlength="600"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="category">分类</label>
+          <select id="category">
+            <option value="已量产">已量产</option>
+            <option value="设计稿">设计稿</option>
+            <option value="同人创作">同人创作</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <div class="row-between">
+            <label>图片（可多选与排序）</label>
+            <span class="small" id="imageCount"></span>
+          </div>
+          <div class="images" id="imageList"></div>
+        </div>
+
+        <div class="row">
+          <button id="saveBtn" class="secondary" type="button">保存草稿</button>
+          <button id="submitBtn" class="primary" type="button">提交到平台</button>
+          <button id="loginBtn" class="ghost" type="button" hidden>去登录平台</button>
+        </div>
+
+        <div class="small" id="sourceInfo"></div>
+      </section>
+    </div>
+
+    <script type="module" src="./preview.mjs"></script>
+  </body>
+</html>

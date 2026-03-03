@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>插件设置 - PlushVote</title>
+    <link rel="stylesheet" href="./common.css" />
+  </head>
+  <body>
+    <div class="stack">
+      <h1>插件设置</h1>
+
+      <section class="card stack">
+        <div class="field">
+          <label for="platformBaseUrl">平台基础地址</label>
+          <input id="platformBaseUrl" placeholder="http://localhost:3000" />
+          <p class="small">示例：本地 `http://localhost:3000`，线上 `https://your-domain.com`。</p>
+        </div>
+
+        <div class="row">
+          <button id="saveBtn" class="primary" type="button">保存设置</button>
+        </div>
+      </section>
+
+      <div id="status" class="status">正在加载...</div>
+    </div>
+
+    <script type="module" src="./options.mjs"></script>
+  </body>
+</html>

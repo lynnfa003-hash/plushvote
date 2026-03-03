@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { LocaleProvider } from "@/components/LocaleProvider";
+import SiteHeader from "@/components/SiteHeader";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PlushVote - 毛绒玩具创意投票平台",
-  description: "发现、分享、投票支持你最想养的毛绒玩具创意。"
+  title: "PlushVote - Plush Idea Community",
+  description: "Discover, share, and vote for the next lovable plush toy designs."
 };
 
 export default function RootLayout({
@@ -12,8 +14,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN">
-      <body className="antialiased">{children}</body>
+    <html lang="en">
+      <body className="font-sans antialiased">
+        <LocaleProvider>
+          <SiteHeader />
+          {children}
+        </LocaleProvider>
+      </body>
     </html>
   );
 }

@@ -50,8 +50,8 @@ function PodiumItem({
       <div className={`relative ${isCenter ? "-mt-8" : ""}`}>
         {/* 排名徽章 */}
         <div
-          className={`absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-gradient-to-br ${rankColors}
-            flex items-center justify-center text-white font-black text-sm shadow-lg z-20`}
+          className={`absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-gradient-to-br ${rankColors}
+            flex items-center justify-center text-white font-black text-base shadow-lg z-20`}
         >
           {rank}
         </div>
@@ -59,19 +59,19 @@ function PodiumItem({
         {/* 玩具图片容器 */}
         <Link
           href={`/toys/${toy.id}`}
-          className={`block w-24 h-24 sm:w-28 sm:h-28 rounded-3xl ${bgColor} flex items-center justify-center
+          className={`block w-32 h-32 sm:w-40 sm:h-40 lg:w-44 lg:h-44 rounded-3xl ${bgColor} flex items-center justify-center
             shadow-lg hover:scale-105 transition-transform duration-300 overflow-hidden border-4 border-white`}
         >
           {toy.image_url ? (
             <Image
               src={toy.image_url}
               alt={toy.name}
-              width={112}
-              height={112}
+              width={176}
+              height={176}
               className="w-full h-full object-cover"
             />
           ) : (
-            <span className="text-4xl">🧸</span>
+            <span className="text-5xl">🧸</span>
           )}
         </Link>
 
@@ -83,15 +83,15 @@ function PodiumItem({
 
       {/* 领奖台底座 */}
       <div
-        className={`w-20 sm:w-24 ${height} mt-4 rounded-t-2xl bg-gradient-to-b ${rankColors} opacity-90
-          flex items-end justify-center pb-2 shadow-lg`}
+        className={`w-24 sm:w-32 ${height} mt-6 rounded-t-2xl bg-gradient-to-b ${rankColors} opacity-90
+          flex items-end justify-center pb-3 shadow-lg`}
       >
-        <span className="text-2xl">{rankEmoji}</span>
+        <span className="text-3xl">{rankEmoji}</span>
       </div>
 
       {/* 玩具名称 */}
-      <Link href={`/toys/${toy.id}`} className="mt-2 text-center max-w-[100px]">
-        <p className="text-xs font-bold text-brand-textDark truncate hover:text-brand-primary transition">
+      <Link href={`/toys/${toy.id}`} className="mt-3 text-center max-w-[140px]">
+        <p className="text-sm font-bold text-brand-textDark truncate hover:text-brand-primary transition">
           {toy.name}
         </p>
       </Link>
@@ -118,12 +118,12 @@ function PodiumTop3({ toys }: { toys: ToyItem[] }) {
   ];
 
   return (
-    <div className="flex items-end justify-center gap-3 sm:gap-6 pb-2">
+    <div className="flex items-end justify-center gap-4 sm:gap-8 pb-4">
       {second && (
         <PodiumItem
           toy={second}
           rank={2}
-          height="h-20 sm:h-24"
+          height="h-28 sm:h-36"
           bgColor={bgColors[1]}
         />
       )}
@@ -131,7 +131,7 @@ function PodiumTop3({ toys }: { toys: ToyItem[] }) {
         <PodiumItem
           toy={first}
           rank={1}
-          height="h-32 sm:h-40"
+          height="h-40 sm:h-52"
           bgColor={bgColors[0]}
           isCenter
         />
@@ -140,7 +140,7 @@ function PodiumTop3({ toys }: { toys: ToyItem[] }) {
         <PodiumItem
           toy={third}
           rank={3}
-          height="h-16 sm:h-20"
+          height="h-24 sm:h-28"
           bgColor={bgColors[2]}
         />
       )}
@@ -230,14 +230,7 @@ export default function HomePageClient({ toys, isSupabaseReady, supabaseConfigEr
             <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-brand-shapeYellow blur-3xl opacity-40" />
 
             {/* 领奖台区域 */}
-            <div className="relative z-10">
-              <div className="text-center mb-6">
-                <span className="inline-flex items-center gap-2 bg-brand-shapePurple px-4 py-2 rounded-full">
-                  <span className="text-lg">🏆</span>
-                  <span className="text-sm font-black text-brand-textDark">TOP 3 热门设计</span>
-                </span>
-              </div>
-
+            <div className="relative z-10 pt-6">
               {toys.length >= 3 ? (
                 <PodiumTop3 toys={toys} />
               ) : (
